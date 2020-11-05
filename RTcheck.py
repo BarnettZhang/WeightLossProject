@@ -2,6 +2,7 @@ import os
 import pandas as pd
 
 # This script can check whether there is RT Simulation file inside the patient folder
+# Can also write the output to the xls file
 
 lis = []
 num = 0
