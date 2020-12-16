@@ -1,4 +1,4 @@
-'''
+"""
 Function copypasteall(src, dest):
 
     Input:
@@ -7,7 +7,7 @@ Function copypasteall(src, dest):
 
     This function copy all files in src and paste them into dest.
 
-'''
+"""
 import os
 import shutil
 
