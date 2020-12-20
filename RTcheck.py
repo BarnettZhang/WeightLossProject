@@ -39,3 +39,4 @@ for bbol in lis:
 # 169
 # 212
 
+# 13 patients don't have RTStruct

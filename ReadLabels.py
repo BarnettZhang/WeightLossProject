@@ -1,9 +1,10 @@
 import xlrd
-import os
+from pathlib import Path
 
-os.path.isfile('Data/contour_names.xlsx')
+
+src = Path('Data')
 # Directory of the file
-loc = ('contour_names.xlsx')
+loc = (src / 'contour_names.xlsx')
 
 wb = xlrd.open_workbook(loc)
 sheet = wb.sheet_by_index(0)
@@ -21,14 +22,19 @@ mandible_label = []
 cochlea_label = []
 brainstem_label = []
 
+l_parotid_miss = []
 
 for row in range(0, 215):
+    l_p_bool = False
     for column in range(0, 76):
         if 'parotid' in str(sheet.cell_value(row, column)).lower() and 'l' in str(sheet.cell_value(row, column)).lower() and 'plan' not in str(sheet.cell_value(row, column)).lower() and 'sub' not in str(sheet.cell_value(row, column)).lower():
             l_parotid_count += 1
+            l_p_bool = True
             if str(sheet.cell_value(row, column)) not in l_parotid_label:
                 l_parotid_label.append(str(sheet.cell_value(row, column)))
             break
+    if not l_p_bool:
+        l_parotid_miss.append(row+1)
     for column in range(0, 76):
         if 'parotid' in str(sheet.cell_value(row, column)).lower() and 'r' in str(sheet.cell_value(row, column)).lower() and 'l' not in str(sheet.cell_value(row, column)).lower() and 'sub' not in str(sheet.cell_value(row, column)).lower():
             r_parotid_count += 1
@@ -56,3 +62,5 @@ for row in range(0, 215):
     collection.append(sheet.row(row))
 
 print(l_parotid_count, r_parotid_count, mandible_count, cochlea_count, brainstem_count)
+print(l_parotid_miss)
+print(len(l_parotid_miss))
