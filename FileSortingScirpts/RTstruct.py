@@ -25,9 +25,16 @@ for i in range(1, 216):
                     #     os.rename(dirrrrr, new_file_name)
                     #     copy(new_file_name, 'E:\RTSTRUCT_DIR')
                     #     break
+                    # Put all RT dose in one folder
+                    if ds.Modality == 'RTDOSE':
+                        dirrrrr = dirrrr + '\\' + file
+                        new_file_name = dirrrr + '\\' + f'{str(i)}'
+                        os.rename(dirrrrr, new_file_name)
+                        copy(new_file_name, 'E:\Restructured_data\RTDOSE_DIR')
+                        break
                     # Put all CT scan folder in one folder
-                    if ds.Modality == 'CT':
-                        if not os.path.isdir(f'E:\Restructured_data\CT_DIR\{str(i)}'):
-                            os.mkdir(f'E:\Restructured_data\CT_DIR\{str(i)}')
-                        copy(dirrrr + '\\' + file, f'E:\Restructured_data\CT_DIR\{str(i)}')
+                    # if ds.Modality == 'CT':
+                    #     if not os.path.isdir(f'E:\Restructured_data\CT_DIR\{str(i)}'):
+                    #         os.mkdir(f'E:\Restructured_data\CT_DIR\{str(i)}')
+                    #     copy(dirrrr + '\\' + file, f'E:\Restructured_data\CT_DIR\{str(i)}')
             print(i)

@@ -1,7 +1,7 @@
-import os, shutil
+import os
 import pandas as pd
 from datetime import datetime as dt
-from copypaste import copypasteall
+from FileSortingScirpts.copypaste import copypasteall
 
 lis1 = []
 # lis2 = []

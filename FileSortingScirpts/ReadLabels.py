@@ -2,7 +2,7 @@ import xlrd
 from pathlib import Path
 
 
-src = Path('Data')
+src = Path('')
 # Directory of the file
 loc = (src / 'contour_names.xlsx')
 
