@@ -1,14 +1,10 @@
-from sklearn.linear_model import Ridge, RidgeCV
-from sklearn.preprocessing import normalize, StandardScaler
 import numpy as np
-import matplotlib.pyplot as plt
-import openpyxl
 from pathlib import Path
-
-# Ridge trace:
-# It plot the coefficients of each features against alpha, which is the ridge parameter that need to be defined.
-# Basically alpha is the degree of punishment. Given a high alpha, if the coefficient of a feature is punished very close to zero,
-# then this parameter can be seen as less important.
+import openpyxl
+from sklearn.preprocessing import normalize, StandardScaler
+from sklearn.linear_model import Lasso
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
 
 src = Path('../Data')
 worksheet = openpyxl.load_workbook(src / 'Patient and Treatment Characteristics.xlsx')['Filtered']
@@ -23,19 +19,21 @@ compactness = np.array([cell.value for (cell,) in worksheet["H2:H176"]])
 
 # DVH features
 DVH_max = np.array([cell.value for (cell,) in worksheet["I2:I176"]])
-DVH_mean = np.array([cell.value for (cell,) in worksheet["J2:J176"]]) # Mean
+DVH_mean = np.array([cell.value for (cell,) in worksheet["J2:J176"]])  # Mean
 DVH_min = np.array([cell.value for (cell,) in worksheet["K2:K176"]])
-DVH_std = np.array([cell.value for (cell,) in worksheet["L2:L176"]]) # Spread
+DVH_std = np.array([cell.value for (cell,) in worksheet["L2:L176"]])  # Spread
 DVH_skewness = np.array([cell.value for (cell,) in worksheet["M2:M176"]])
 
 bw_loss = np.array([cell.value for (cell,) in worksheet["U2:U176"]])
 
 feature_names = ['volume', 'surface_area', 'sphericity', 'eccentricity', 'compactness', 'DVH_max', 'DVH_mean',
-                 'DVH_min', 'DVH_std', 'DVH_skewness']
-# Ridge regression
+                 'DVH_min', 'DVH_std', 'DVH_Skewness']
+
 y = bw_loss
 y = y.reshape(-1, 1)
-X = np.transpose(np.array([volume, surface_area, sphericity, eccentricity, compactness, DVH_max, DVH_mean, DVH_min, DVH_std, DVH_skewness]))
+X = np.transpose(
+    np.array([volume, surface_area, sphericity, eccentricity, compactness, DVH_std, DVH_min, DVH_max, DVH_mean, DVH_skewness]))
+
 scaler = StandardScaler()
 X_std = scaler.fit_transform(X)
 y_std = scaler.fit_transform(y)
@@ -44,29 +42,27 @@ result = {}
 for name in feature_names:
     result[name] = {'coefficient': [], 'alpha': [], 'label': name}
 
-clf = Ridge(alpha=0)
-clf.fit(X_std, y_std)
-print(clf.coef_)
-
-for alpha in np.arange(0, 200, 1):
-    clf = Ridge(alpha=alpha)
+for alpha in np.arange(0.00001, 0.5, 0.00001):
+    clf = Lasso(alpha=alpha, max_iter=10000)
     clf.fit(X_std, y_std)
-    coef_list = clf.coef_[0].tolist()
-    for coef in coef_list:
-        coef_index = coef_list.index(coef)
+    coef_list = clf.coef_.tolist()
+    print(clf.n_iter_)
+    for i in range(len(coef_list)):
+        coef_index = i
         name = feature_names[coef_index]
-        result[name]['coefficient'].append(coef)
+        result[name]['coefficient'].append(abs(coef_list[i]))
         result[name]['alpha'].append(alpha)
 
 plt.figure()
 for name in feature_names:
     if 'DVH' not in name:
-        plt.plot('alpha', 'coefficient', data=result[name], label=result[name]['label'])
+        ax = plt.plot('alpha', 'coefficient', data=result[name], label=result[name]['label'])
 plt.axhline(y=0, color='black', linestyle=':')
+plt.xscale('log')
 plt.xlabel('Alpha')
 plt.ylabel('Coefficient')
 plt.legend(loc='upper right')
-plt.title('Ridge traces of left parotid glands volumetric features')
+plt.title('Lasso traces of left parotid glands volumetric features')
 plt.savefig(fname='volumetric features left parotid ridge trace')
 
 plt.figure()
@@ -74,8 +70,9 @@ for name in feature_names:
     if 'DVH' in name:
         plt.plot('alpha', 'coefficient', data=result[name], label=result[name]['label'])
 plt.axhline(y=0, color='black', linestyle=':')
+plt.xscale('log')
 plt.xlabel('Alpha')
 plt.ylabel('Coefficient')
 plt.legend(loc='upper right')
-plt.title('Ridge traces of left parotid glands DVH features')
+plt.title('Lasso traces of left parotid glands DVH features')
 plt.savefig(fname='DVH features left parotid ridge trace')
