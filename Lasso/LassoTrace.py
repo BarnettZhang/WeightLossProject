@@ -1,6 +1,7 @@
 import numpy as np
 from pathlib import Path
 import openpyxl
+import pandas
 from sklearn.preprocessing import normalize, StandardScaler
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error
